@@ -1,50 +1,5 @@
-/** pg-straitwing — 海峽空戰 (空戰／載具戰) */
-
-function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-function mulberry32(a) {
-  return function() {
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function deep(o) { return JSON.parse(JSON.stringify(o)); }
-
-
-export function createGame({ seed = 1, mission = 1 } = {}) {
-  return { seed, mission, hp: 5, foes: 3 + mission, score: 0, ammo: 12, outcome: "playing", msg: `任務 ${mission}：擊墜敵機` };
-}
-export function getLegalActions(s) {
-  if (s.outcome !== "playing") return [];
-  return ["bank", "fire", "flare"];
-}
-export function applyAction(state, action) {
-  const s = deep(state);
-  if (s.outcome !== "playing") return s;
-  const rnd = mulberry32(s.seed + s.foes * 5 + s.ammo);
-  if (action === "fire") {
-    if (s.ammo <= 0) { s.msg = "彈藥耗盡"; return s; }
-    s.ammo--;
-    if (rnd() < 0.55) { s.foes--; s.score += 100; s.msg = "擊墜！"; }
-    else s.msg = "彈幕掠過";
-  } else if (action === "bank") {
-    s.msg = "側滾迴避";
-    if (rnd() < 0.2) { s.hp--; s.msg = "擦彈受傷"; }
-  } else {
-    if (rnd() < 0.7) s.msg = "熱焰彈誘偏飛彈";
-    else { s.hp--; s.msg = "誘餌失敗"; }
-  }
-  if (rnd() < 0.25 && action !== "bank") { s.hp--; s.msg += "／被咬尾"; }
-  if (s.hp <= 0) s.outcome = "lost";
-  else if (s.foes <= 0) {
-    if (s.mission >= 3) { s.outcome = "won"; s.msg = "海峽空域肅清"; }
-    else { s.mission++; s.foes = 3 + s.mission; s.ammo += 6; s.msg = `進入任務 ${s.mission}`; }
-  }
-  return s;
-}
-export function summarize(s) {
-  return { mission: s.mission, hp: s.hp, foes: s.foes, ammo: s.ammo, score: s.score, msg: s.msg, outcome: s.outcome };
-}
-export function getOutcome(s) { return s.outcome; }
-
+const copy=o=>structuredClone(o);const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));function roll(seed){let t=seed+0x6d2b79f5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}
+export function createGame({seed=1}={}){return{seed,turn:0,mission:1,hp:5,foes:4,ammo:12,flares:3,evade:0,score:0,outcome:"playing",msg:"任務 1：攔截來襲編隊"}}
+export const getLegalActions=s=>s.outcome==="playing"?["bank","fire","flare"]:[];
+export function applyAction(state,a){if(state.outcome!=="playing")return state;const s=copy(state),r=roll(s.seed+s.turn++*23);if(a==="bank"){s.evade=2;s.msg="側滾脫離鎖定"}else if(a==="flare"){if(!s.flares){s.msg="熱焰彈用完";return s}s.flares--;s.evade=3;s.msg="飛彈被誘偏"}else{if(!s.ammo){s.msg="機砲彈藥耗盡";return s}s.ammo--;if(r<.62){s.foes--;s.score+=100;s.msg="敵機擊墜！"}else s.msg="彈道落空"}if(s.evade)s.evade--;else if(r>.72){s.hp--;s.msg+="／機身中彈"}if(s.hp<=0){s.outcome="lost";s.msg="戰機墜海"}else if(s.foes<=0){if(s.mission===3){s.outcome="won";s.msg="王牌擊墜，三任務完成！"}else{s.mission++;s.foes=3+s.mission;s.ammo+=8;s.flares+=2;s.msg=[,"","任務 2：護航船團","任務 3：迎戰王牌"][s.mission]}}return s}
+export const summarize=s=>({mission:s.mission,hp:s.hp,foes:s.foes,ammo:s.ammo,flares:s.flares,score:s.score,msg:s.msg,outcome:s.outcome});export const getOutcome=s=>s.outcome;
