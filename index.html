@@ -1,1 +1,99 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090b18"><meta name="description" content="駕駛戰機守住海峽，完成攔截、護航與王牌決戰三項任務。"><title>海峽空戰</title><link rel="stylesheet" href="./styles.css"></head><body><main><header class="top"><div><p class="eyebrow">飛行戰鬥</p><h1>海峽空戰</h1></div><button id="sound" class="sound" type="button" aria-pressed="true">♪ 音樂開</button></header><section id="lobby" class="panel"><img class="lobby-art" src="./assets/images/cover.png" alt=""><p class="blurb">駕駛戰機守住海峽，完成攔截、護航與王牌決戰三項任務。</p><div class="options"></div><button id="start" class="primary" type="button">開始挑戰</button><p class="meta">本機最佳 <strong id="best">0</strong> · <a href="./ATTRIBUTION.md">素材署名</a></p></section><section id="game" hidden><div class="gamebar"><span id="badge" class="badge">進行中</span><p id="hud"></p></div><div class="stage-wrap"><canvas id="stage" width="800" height="450" aria-label="海峽空戰遊戲畫面"></canvas></div><p id="message" class="message" aria-live="polite"></p><div id="controls" class="controls" aria-label="遊戲控制"></div></section></main><script type="module" src="./app.js"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07182a" />
+    <meta
+      name="description"
+      content="海峽空戰：俯視狗鬥射擊。駕駛戰機在台灣海峽完成攔截、護航、制壓、空優與王牌決戰五項任務。"
+    />
+    <title>海峽空戰</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <p class="tag">俯視狗鬥</p>
+          <h1>海峽空戰</h1>
+        </div>
+        <button id="sound" class="ghost" type="button" aria-pressed="true">音效 開</button>
+      </header>
+
+      <section id="lobby" class="lobby">
+        <img class="cover" src="./assets/images/cover.png" alt="戰機在海峽上空纏鬥的示意畫面" />
+        <p class="blurb">
+          海峽上空，你是唯一還能升空的攔截機。五個任務一關比一關硬：攔截、護航、制壓巡邏艇、空優作戰，最後單挑海峽王牌。
+        </p>
+        <h2 class="section-title">選擇任務</h2>
+        <ul id="level-list" class="levels"></ul>
+        <button id="start" class="primary big" type="button">出擊</button>
+        <p class="meta">
+          最佳分數 <strong id="best">0</strong> · 已通關 <strong id="cleared">0／5</strong>
+        </p>
+        <details class="fold">
+          <summary>操作說明</summary>
+          <ul>
+            <li>手機：左下角任意處按住＝浮動類比搖桿；右下「開火」按住連射，「熱焰」放出反制彈。</li>
+            <li>鍵盤：WASD／方向鍵飛行，J 或空白鍵開火，K／Shift 放熱焰彈，P 暫停。</li>
+            <li>機砲會過熱：紅色量表滿了就得放手等冷卻。撿冷卻劑可立刻解鎖。</li>
+            <li>熱焰彈會燒掉身邊的敵彈並短暫無敵，被咬住尾巴時使用。</li>
+          </ul>
+        </details>
+        <details class="fold">
+          <summary>素材與授權</summary>
+          <ul>
+            <li>美術：Kenney「Pixel Shmup」（CC0）</li>
+            <li>音效：Kenney「Sci-Fi Sounds」、「Music Jingles」（CC0）</li>
+            <li>音樂：Not Jam「Not Jam Music Pack」（CC0）</li>
+            <li>完整列表見 <a href="./ATTRIBUTION.md">ATTRIBUTION.md</a></li>
+          </ul>
+        </details>
+      </section>
+
+      <section id="field" class="field" hidden>
+        <div class="hud">
+          <div class="hud-top">
+            <span id="hud-level" class="chip">第 1／5 關</span>
+            <span id="hud-score" class="chip score">0 分</span>
+            <button id="pause" class="chip button" type="button">暫停</button>
+          </div>
+          <p id="hud-objective" class="objective"></p>
+          <div class="gauges">
+            <div class="gauge">
+              <b>機體</b>
+              <div class="bar"><span id="hp-fill" class="fill hp"></span></div>
+            </div>
+            <div class="gauge">
+              <b>機砲</b>
+              <div class="bar"><span id="heat-fill" class="fill heat"></span></div>
+            </div>
+            <span id="hud-flares" class="chip">熱焰彈 3</span>
+          </div>
+        </div>
+
+        <div class="stage">
+          <canvas id="stage" aria-label="海峽空戰遊戲畫面"></canvas>
+          <p id="toast" class="toast" aria-live="polite"></p>
+
+          <div class="touch">
+            <div id="stick-zone" class="stick-zone" aria-hidden="true">
+              <span class="stick-ring"></span>
+              <span class="stick-knob"></span>
+              <span class="stick-hint">飛行</span>
+            </div>
+            <div class="actions">
+              <button id="btn-flare" class="act flare" type="button" aria-label="放出熱焰彈">熱焰</button>
+              <button id="btn-fire" class="act fire" type="button" aria-label="機砲開火">開火</button>
+            </div>
+          </div>
+
+          <div id="overlay" class="overlay" hidden></div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

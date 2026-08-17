@@ -1,0 +1,163 @@
+/** Playfield is a slice of the strait: enemies come from the north, home port is south. */
+export const WORLD = {
+  w: 1200,
+  h: 1900,
+  /** Allies that get this far south are safely home. */
+  exitY: 1830,
+  /** Bombers that get this far south have hit the port. */
+  leakY: 1870,
+  margin: 34,
+};
+
+export const PLAYER = {
+  maxHp: 120,
+  accel: 980,
+  maxSpeed: 300,
+  drag: 1.9,
+  turn: 4.6,
+  r: 13,
+  bulletSpeed: 620,
+  bulletDmg: 7,
+  flares: 3,
+  flareRadius: 130,
+  flareInvuln: 0.9,
+  flareCooldown: 1.2,
+  spawnInvuln: 1.4,
+};
+
+export const ENEMY_KINDS = {
+  fighter: {
+    label: "敵戰機",
+    sprite: "plane-fighter",
+    hp: 16,
+    accel: 520,
+    maxSpeed: 215,
+    drag: 1.7,
+    turn: 3,
+    r: 12,
+    bulletSpeed: 400,
+    dmg: 8,
+    fireInterval: 1.05,
+    burst: 3,
+    burstGap: 0.11,
+    fireRange: 420,
+    fireCone: 0.2,
+    ram: 9,
+    score: 120,
+  },
+  heavy: {
+    label: "攻擊機",
+    sprite: "plane-heavy",
+    hp: 34,
+    accel: 330,
+    maxSpeed: 165,
+    drag: 1.5,
+    turn: 1.9,
+    r: 15,
+    bulletSpeed: 380,
+    dmg: 10,
+    fireInterval: 1.3,
+    burst: 2,
+    burstGap: 0.14,
+    fireRange: 380,
+    fireCone: 0.26,
+    ram: 12,
+    score: 200,
+    prefersAllies: true,
+  },
+  bomber: {
+    label: "轟炸機",
+    sprite: "plane-bomber",
+    hp: 52,
+    accel: 220,
+    maxSpeed: 130,
+    drag: 1.2,
+    turn: 1.2,
+    r: 18,
+    bulletSpeed: 300,
+    dmg: 11,
+    fireInterval: 1.5,
+    burst: 1,
+    burstGap: 0.1,
+    fireRange: 280,
+    fireCone: Math.PI,
+    ram: 14,
+    score: 300,
+    runsSouth: true,
+    turret: true,
+  },
+  ace: {
+    label: "海峽王牌",
+    sprite: "plane-ace",
+    hp: 120,
+    accel: 700,
+    maxSpeed: 285,
+    drag: 1.8,
+    turn: 4.2,
+    r: 14,
+    bulletSpeed: 470,
+    dmg: 12,
+    fireInterval: 0.75,
+    burst: 3,
+    burstGap: 0.09,
+    spread: 3,
+    spreadArc: 0.18,
+    fireRange: 470,
+    fireCone: 0.3,
+    ram: 16,
+    score: 1200,
+    boss: true,
+  },
+  boat: {
+    label: "巡邏艇",
+    sprite: null,
+    hp: 40,
+    accel: 45,
+    maxSpeed: 42,
+    drag: 0.9,
+    turn: 0.5,
+    r: 20,
+    bulletSpeed: 260,
+    dmg: 12,
+    fireInterval: 1.5,
+    burst: 2,
+    burstGap: 0.22,
+    fireRange: 420,
+    fireCone: Math.PI,
+    ram: 0,
+    score: 200,
+    naval: true,
+    turret: true,
+  },
+};
+
+export const ALLY_KINDS = {
+  transport: {
+    label: "運補機",
+    sprite: "plane-transport",
+    hp: 26,
+    speed: 64,
+    r: 16,
+    score: 400,
+  },
+};
+
+export const PICKUP_KINDS = {
+  repair: { label: "維修包", sprite: "pickup-repair", hp: 26 },
+  flare: { label: "熱焰彈", sprite: "pickup-flare", flares: 2 },
+  cool: { label: "冷卻劑", sprite: "pickup-cool", cool: 1 },
+};
+
+export const PICKUP_TABLE = ["repair", "flare", "cool", "cool"];
+
+/** Multipliers folded into unit stats when a level spawns them. */
+export function scaleStats(base, scale = {}) {
+  return {
+    ...base,
+    hp: Math.round(base.hp * (scale.hp ?? 1)),
+    maxSpeed: base.maxSpeed * (scale.speed ?? 1),
+    accel: base.accel * (scale.speed ?? 1),
+    fireInterval: base.fireInterval / (scale.fire ?? 1),
+    dmg: Math.round(base.dmg * (scale.dmg ?? 1)),
+  };
+}
